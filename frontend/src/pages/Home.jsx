@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api';
-import { Clock, User } from 'lucide-react';
+import { Clock, User, Award } from 'lucide-react';
+import CertificateModal from '../components/CertificateModal';
 
 const Home = () => {
     const [courses, setCourses] = useState([]);
     const [enrolledCourses, setEnrolledCourses] = useState([]);
     const [userProgress, setUserProgress] = useState({}); // courseId -> completionPercentage
+    const [selectedCertificate, setSelectedCertificate] = useState(null);
     const user = JSON.parse(localStorage.getItem('user'));
 
     const [loading, setLoading] = useState(true);
@@ -106,9 +108,20 @@ const Home = () => {
                                                 </div>
                                             </div>
 
-                                            <Link to={`/learning/${course.id}/1`} className="btn btn-primary" style={{ width: '100%', textAlign: 'center', fontSize: '0.9rem' }}>
-                                                {userProgress[course.id] === 100 ? "Review Course" : "Continue Learning"}
-                                            </Link>
+                                            {userProgress[course.id] === 100 ? (
+                                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                                    <button onClick={() => setSelectedCertificate(course)} className="btn btn-primary" style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}>
+                                                        <Award size={16} /> Certificate
+                                                    </button>
+                                                    <Link to={`/learning/${course.id}/1`} className="btn btn-outline" style={{ flex: 1, textAlign: 'center', fontSize: '0.9rem' }}>
+                                                        Review
+                                                    </Link>
+                                                </div>
+                                            ) : (
+                                                <Link to={`/learning/${course.id}/1`} className="btn btn-primary" style={{ width: '100%', textAlign: 'center', fontSize: '0.9rem' }}>
+                                                    Continue Learning
+                                                </Link>
+                                            )}
                                         </div>
                                     </div>
                                 ))}
@@ -143,6 +156,13 @@ const Home = () => {
                     </div>
                 )}
             </div>
+            {selectedCertificate && (
+                <CertificateModal
+                    course={selectedCertificate}
+                    user={user}
+                    onClose={() => setSelectedCertificate(null)}
+                />
+            )}
         </div>
     );
 };
